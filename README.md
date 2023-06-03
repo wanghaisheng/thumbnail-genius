@@ -17,4 +17,7 @@ from seed keyword, for example: capcut
 
 use  video title 
 
+## multi language title,description translation 
+
+
 ## 
