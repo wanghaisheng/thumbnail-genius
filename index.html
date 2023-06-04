@@ -162,6 +162,8 @@ def draw_text_on_image(row, zone_width, zone_height):
     # Save the result image with the video_id as the filename
     video_id = row['video_id']
     output_folder = './output'
+    if not os.path.exists(output_folder):
+        os.mkdir(output_folder)
     result_image_path = f'${{ output_folder }}/${{ video_id }}.jpg'
     result_image.save(result_image_path)
 
