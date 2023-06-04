@@ -34,16 +34,13 @@
       <tbody id="result-body"></tbody>
     </table>
 
-    <script
-      type="text/javascript"
-      src="pyodide.js"
-    ></script>
+      <script src="https://cdn.jsdelivr.net/pyodide/v0.23.2/full/pyodide.js"></script>
     <script type="text/javascript">
       async function initializePyodide() {
-        await loadPyodide({
-          indexURL: "https://cdn.jsdelivr.net/pyodide/dev/full/",
-        });
-
+//         await loadPyodide({
+//           indexURL: "https://cdn.jsdelivr.net/pyodide/dev/full/",
+//         });
+        let pyodide = await loadPyodide();
         // Install required packages
         await pyodide.loadPackage(["pandas", "Pillow"]);
 
