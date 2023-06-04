@@ -51,6 +51,7 @@
 
       async function processFile() {
         const fileInput = document.getElementById("file-input");
+        const output_folder = './output'
         const file = fileInput.files[0];
         if (!file) {
           return;
