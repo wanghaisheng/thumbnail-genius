@@ -35,3 +35,12 @@ use  video title
 ## summary video transcript to video description 
 
 ## 
+
+
+
+
+
+convert the following code to javascript running in the browser instead of server side：
+
+
+
