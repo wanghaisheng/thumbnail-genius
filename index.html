@@ -36,11 +36,12 @@
 
       <script src="https://cdn.jsdelivr.net/pyodide/v0.23.2/full/pyodide.js"></script>
     <script type="text/javascript">
+      let pyodide=''
       async function initializePyodide() {
 //         await loadPyodide({
 //           indexURL: "https://cdn.jsdelivr.net/pyodide/dev/full/",
 //         });
-        let pyodide = await loadPyodide();
+        pyodide = await loadPyodide();
         // Install required packages
         await pyodide.loadPackage(["pandas", "Pillow"]);
 
