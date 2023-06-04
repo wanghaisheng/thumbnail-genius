@@ -52,6 +52,7 @@
       async function processFile() {
         const fileInput = document.getElementById("file-input");
         const output_folder = './output'
+        let video_id=""
         const file = fileInput.files[0];
         if (!file) {
           return;
