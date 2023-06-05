@@ -175,12 +175,12 @@ def draw_text_on_image(row, zone_width, zone_height):
 file_extension = '.'+'${fileExtension}'
 print(file_extension)
 if file_extension == '.xlsx':
-    df = pd.read_excel(file_buffer)
+    df = pd.read_excel(${file_buffer})
 elif file_extension == '.csv':
-    df = pd.read_csv(file_buffer)
+    df = pd.read_csv(${file_buffer})
 elif file_extension == '.json':
 #     data = pyodide.toPy(JSON.parse(pyodide.fromPy(file_buffer)))
-    data = JSON.parse(file_buffer)
+    data = JSON.parse(${file_buffer})
 
     df = pd.DataFrame(data)
 else:
