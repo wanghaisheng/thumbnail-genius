@@ -35,13 +35,13 @@
     </table>
 <!--       <script src="pyodide.js"></script> -->
 
-      <script src="https://cdn.jsdelivr.net/pyodide/dev/full/pyodide.js"></script>
+      <script src="https://cdn.jsdelivr.net/pyodide/v0.23.2/full/pyodide.js"></script>
     <script type="text/javascript">
       let pyodide=''
       let fileExtension=''
       async function initializePyodide() {
          await loadPyodide({
-           indexURL: "https://cdn.jsdelivr.net/pyodide/dev/full/",
+           indexURL: "https://cdn.jsdelivr.net/pyodide/v0.23.2/full/",
          });
         pyodide = await loadPyodide();
         // Install required packages
