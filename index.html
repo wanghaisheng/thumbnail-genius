@@ -177,7 +177,9 @@ if file_extension == '.xlsx':
 elif file_extension == '.csv':
     df = pd.read_csv(file_buffer)
 elif file_extension == '.json':
-    data = pyodide.toPy(JSON.parse(pyodide.fromPy(file_buffer)))
+#     data = pyodide.toPy(JSON.parse(pyodide.fromPy(file_buffer)))
+    data = JSON.parse(file_buffer)
+
     df = pd.DataFrame(data)
 else:
     raise ValueError('Invalid file format. Only Excel, CSV, and JSON files are supported.')
