@@ -37,6 +37,7 @@
       <script src="https://cdn.jsdelivr.net/pyodide/v0.23.2/full/pyodide.js"></script>
     <script type="text/javascript">
       let pyodide=''
+      let fileExtension=''
       async function initializePyodide() {
 //         await loadPyodide({
 //           indexURL: "https://cdn.jsdelivr.net/pyodide/dev/full/",
@@ -62,7 +63,7 @@
         fileReader.onload = async () => {
           const fileData = fileReader.result;
           const fileName = file.name;
-          const fileExtension = fileName.split(".").pop().toLowerCase();
+          fileExtension = fileName.split(".").pop().toLowerCase();
 
           // Convert file data to bytes
           const fileBytes = new Uint8Array(fileData);
