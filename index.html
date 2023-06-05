@@ -63,7 +63,7 @@
         fileReader.onload = async () => {
           const fileData = fileReader.result;
           const fileName = file.name;
-          fileExtension = fileName.split(".").pop().toLowerCase();
+          fileExtension = fileName.split('.').pop().toLowerCase()
 
           // Convert file data to bytes
           const fileBytes = new Uint8Array(fileData);
@@ -171,6 +171,7 @@ def draw_text_on_image(row, zone_width, zone_height):
     result_image.save(result_image_path)
 
 file_extension = '${fileExtension}'
+print(file_extension)
 if file_extension == '.xlsx':
     df = pd.read_excel(file_buffer)
 elif file_extension == '.csv':
