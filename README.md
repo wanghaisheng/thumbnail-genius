@@ -3,6 +3,35 @@ how to generate metadata of video using gpt, clickbait title, description, thumb
 
 
 
+
+
+traditional way 
+
+1. load demo thubmnail to gen template  json
+
+https://wanghaisheng.github.io/video-publish-metadata-gpt/template.html
+
+font name
+font size
+rendering starting zone
+
+
+2. use the tem
+
+template json:
+font name
+font size
+text
+rendering starting zone
+
+
+run code inside browser without any other package install to play 
+
+https://wanghaisheng.github.io/video-publish-metadata-gpt/
+
+
+
+
 from seed keyword, for example: capcut 
 
 # if you have no video or idea at all
