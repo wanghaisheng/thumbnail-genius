@@ -1,327 +1,111 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Image Processing</title>
-    <style>
-      #result-table {
-        margin-top: 20px;
-        border-collapse: collapse;
+<html>
+<head>
+  <title>Image Processing</title>
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.23.2/full/pyodide.js"></script>
+  <script>
+    async function loadPyodide() {
+      await languagePluginLoader;
+
+      // Function to handle form submission
+      function processFile() {
+        var fileInput = document.getElementById('fileInput');
+        var file = fileInput.files[0];
+        var formData = new FormData();
+        formData.append('file', file);
+
+        // Load the Python script
+        pyodide.runPython(`
+          import pandas as pd
+          from PIL import Image, ImageDraw, ImageFont
+          import os
+
+          def process_image(input_file, output_folder):
+              # Read the input file into a pandas DataFrame
+              df = pd.read_csv(input_file)
+
+              # Replace blank column names with underscores
+              df.columns = [col.replace(' ', '_') for col in df.columns]
+
+              # Split the result image size into 16 zones
+              num_zones = 16
+              zone_width = 4
+              zone_height = 4
+              result_image_size = df['result_image_size'][0]
+              zone_width_pixels = result_image_size[0] // zone_width
+              zone_height_pixels = result_image_size[1] // zone_height
+
+              # Process each row in the DataFrame
+              for index, row in df.iterrows():
+                  video_id = row['video_id']
+                  background_image_path = row['background_image']
+                  title = row['title']
+                  subtitle = row['sub-title']
+                  extra_text = row['extra_text']
+                  title_font_size = row['title_font_size']
+                  subtitle_font_size = row['sub-title_font_size']
+                  extra_text_font_size = row['extra_text_font_size']
+                  title_area_number = row['title_area_number']
+                  subtitle_area_number = row['subtitle_area_number']
+                  extra_text_area_number = row['extra_text_area_number']
+
+                  # Load the background image
+                  background_image = Image.open(background_image_path)
+
+                  # Resize the background image to the result image size
+                  background_image = background_image.resize(result_image_size)
+
+                  # Create a new image object for drawing text on the background image
+                  result_image = ImageDraw.Draw(background_image)
+
+                  # Calculate the starting point for drawing text based on the area number
+                  title_start_x = (title_area_number % zone_width) * zone_width_pixels
+                  title_start_y = (title_area_number // zone_height) * zone_height_pixels
+                  subtitle_start_x = (subtitle_area_number % zone_width) * zone_width_pixels
+                  subtitle_start_y = (subtitle_area_number // zone_height) * zone_height_pixels
+                  extra_text_start_x = (extra_text_area_number % zone_width) * zone_width_pixels
+                  extra_text_start_y = (extra_text_area_number // zone_height) * zone_height_pixels
+
+                  # Draw the title text
+                  font = ImageFont.truetype('title_font.ttf', title_font_size)
+                  result_image.text((title_start_x, title_start_y), title, font=font)
+
+                  # Draw the subtitle text
+                  font = ImageFont.truetype('subtitle_font.ttf', subtitle_font_size)
+                  result_image.text((subtitle_start_x, subtitle_start_y), subtitle, font=font)
+
+                  # Draw the extra text
+                  font = ImageFont.truetype('extra_text_font.ttf', extra_text_font_size)
+                  result_image.text((extra_text_start_x, extra_text_start_y), extra_text, font=font)
+
+                  # Save the result image to the output folder with the video ID as the filename
+                  result_image_path = os.path.join(output_folder, f'{video_id}.png')
+                  background_image.save(result_image_path)
+
+                  print(f'Processed image for video ID: {video_id}')
+
+          # Example usage
+          input_file = 'input.csv'
+          output_folder = 'output_images'
+          process_image(input_file, output_folder)
+        `);
       }
 
-      #result-table td {
-        border: 1px solid black;
-        padding: 5px;
-      }
+      // Wait for Pyodide to finish loading before setting up the form submission
+      document.getElementById('processButton').addEventListener('click', processFile);
+    }
 
-      #result-table img {
-        max-width: 200px;
-        max-height: 200px;
-        cursor: pointer;
-      }
-    </style>
-  </head>
-  <body>
-    <input type="file" id="file-input" />
-    <button id="submit-btn">Submit</button>
-    <table id="result-table">
-      <thead>
-        <tr>
-          <th>Video ID</th>
-          <th>Result Image</th>
-        </tr>
-      </thead>
-      <tbody id="result-body"></tbody>
-    </table>
-<!--       <script src="pyodide.js"></script> -->
-
-      <script src="https://cdn.jsdelivr.net/pyodide/v0.23.2/full/pyodide.js"></script>
-    <script type="text/javascript">
-      let pyodide=''
-      let fileExtension=''
-      let file_buffer=''
-      async function initializePyodide() {
-         await loadPyodide({
-           indexURL: "https://cdn.jsdelivr.net/pyodide/v0.23.2/full/",
-         });
-        pyodide = await loadPyodide();
-        // Install required packages
-        await pyodide.loadPackage(["pandas", "Pillow"]);
-
-        // Enable the submit button after Pyodide is initialized
-        document.getElementById("submit-btn").disabled = false;
-      }
-
-      async function processFile() {
-        const fileInput = document.getElementById("file-input");
-        const output_folder = './output'
-        let video_id=""
-        const file = fileInput.files[0];
-        if (!file) {
-          return;
-        }
-
-        const fileReader = new FileReader();
-        fileReader.onload = async () => {
-          const fileData = fileReader.result;
-          const fileName = file.name;
-          fileExtension = fileName.split('.').pop().toLowerCase()
-
-          // Convert file data to bytes
-          const fileBytes = new Uint8Array(fileData);
-          fileBuffer = pyodide.toPy(fileBytes);
-
-          // Process the file
-          await pyodide.runPythonAsync(`
-import pandas as pd
-import json
-from PIL import Image, ImageDraw, ImageFont
-import os, sys
-
-
-def calculate_text_size(text, font):
-    width, height = font.getsize(text)
-    return width, height
-
-
-def calculate_text_lines(text, font, max_width):
-    lines = []
-    words = text.split()
-    current_line = words[0]
-    for word in words[1:]:
-        line_width, _ = calculate_text_size(current_line + " " + word, font)
-        if line_width <= max_width:
-            current_line += " " + word
-        else:
-            lines.append(current_line)
-            current_line = word
-    lines.append(current_line)
-    return lines
-
-
-def convert_canvas_coord_to_corner(canvas_coord, zone_width, zone_height):
-    zone_number = canvas_coord - 1
-    zone_column = zone_number % 4
-    zone_row = zone_number // 4
-    corner_x = zone_column * zone_width
-    corner_y = zone_row * zone_height
-    return corner_x, corner_y
-
-
-def draw_multiline_text(draw, text, start_coord, font, max_width, line_spacing):
-    lines = calculate_text_lines(text, font, max_width)
-    x, y = start_coord
-    for line in lines:
-        draw.text((x, y), line, font=font)
-        x, y = start_coord[0], y + line_spacing
-
-
-def clean_column_name(column_name):
-    return column_name.replace(" ", "_")
-
-
-def get_default_font(language):
-    if sys.platform == "win32":
-        if language == "en":
-            return "arial.ttf"  # Use Arial as default font on Windows for English text
-        elif language == "es":
-            return "arial.ttf"  # Use Arial as default font on Windows for Spanish text
-        elif language == "zh":
-            return (
-                "simhei.ttf"  # Use SimHei as default font on Windows for Chinese text
-            )
-    elif sys.platform == "darwin":
-        if language == "en":
-            return "/Library/Fonts/Arial.ttf"  # Use Arial as default font on macOS for English text
-        elif language == "es":
-            return "/Library/Fonts/Arial.ttf"  # Use Arial as default font on macOS for Spanish text
-        elif language == "zh":
-            return "/Library/Fonts/SimHei.ttf"  # Use SimHei as default font on macOS for Chinese text
-    else:
-        if language == "en":
-            return "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"  # Use DejaVu Sans as default font on Unix-based systems for English text
-        elif language == "es":
-            return "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"  # Use DejaVu Sans as default font on Unix-based systems for Spanish text
-        elif language == "zh":
-            return "/usr/share/fonts/truetype/wqy/wqy-microhei.ttc"  # Use WQY Microhei as default font on Unix-based systems for Chinese text
-
-
-def draw_text_on_image(row, output_folder):
-    result_image_size = row["result_image_size"].split("x")
-    result_image_width, result_image_height = map(int, result_image_size)
-
-    # Load and resize the background image
-    background_image_path = row["background_image"]
-    background_image = Image.open(background_image_path).resize(
-        (result_image_width, result_image_height)
-    )
-
-    # Create a new image with the resized background image
-    result_image = Image.new("RGB", (result_image_width, result_image_height))
-    result_image.paste(background_image)
-
-    # Create a drawing object
-    draw = ImageDraw.Draw(result_image)
-    # Load font files or fallback to default system fonts for different languages
-    try:
-        title_font_path = row["title_font"]
-        title_font = ImageFont.truetype(
-            title_font_path, size=int(row["title_font_size"])
-        )
-    except (OSError, FileNotFoundError):
-        title_font = ImageFont.truetype(
-            get_default_font(row["title_language"]), size=int(row["title_font_size"])
-        )
-
-    try:
-        subtitle_font_path = row["subtitle_font"]
-        subtitle_font = ImageFont.truetype(
-            subtitle_font_path, size=int(row["subtitle_font_size"])
-        )
-    except (OSError, FileNotFoundError):
-        subtitle_font = ImageFont.truetype(
-            get_default_font(row["subtitle_language"]),
-            size=int(row["subtitle_font_size"]),
-        )
-
-    try:
-        extra_text_font_path = row["extra_text_font"]
-        extra_text_font = ImageFont.truetype(
-            extra_text_font_path, size=int(row["extra_text_font_size"])
-        )
-    except (OSError, FileNotFoundError):
-        extra_text_font = ImageFont.truetype(
-            get_default_font(row["extra_text_language"]),
-            size=int(row["extra_text_font_size"]),
-        )
-
-    # Split the result image into 16 zones
-    zones_horizontal = 4
-    zones_vertical = 4
-
-    # Calculate the zone width and height
-    zone_width = result_image_width // zones_horizontal
-    zone_height = result_image_height // zones_vertical
-
-    # Get the corner coordinates for each area
-    title_area = int(row["title_area_number"])
-    title_corner_coord = convert_canvas_coord_to_corner(
-        title_area, zone_width, zone_height
-    )
-
-    subtitle_area = int(row["subtitle_area_number"])
-    subtitle_corner_coord = convert_canvas_coord_to_corner(
-        subtitle_area, zone_width, zone_height
-    )
-
-    extra_text_area = int(row["extra_text_area_number"])
-    extra_text_corner_coord = convert_canvas_coord_to_corner(
-        extra_text_area, zone_width, zone_height
-    )
-
-    # Draw title text
-    title_text = row["title"]
-    draw_multiline_text(
-        draw,
-        title_text,
-        title_corner_coord,
-        title_font,
-        zone_width,
-        int(row["title_font_size"]),
-    )
-
-    # Draw subtitle text
-    subtitle_text = row["subtitle"]
-    draw_multiline_text(
-        draw,
-        subtitle_text,
-        subtitle_corner_coord,
-        subtitle_font,
-        zone_width,
-        int(row["subtitle_font_size"]),
-    )
-
-    # Draw extra text
-    extra_text = row["extra_text"]
-    draw_multiline_text(
-        draw,
-        extra_text,
-        extra_text_corner_coord,
-        extra_text_font,
-        zone_width,
-        int(row["extra_text_font_size"]),
-    )
-    # Save the result image with the video_id as the filename
-    video_id = row["video_id"]
-    # Save the result image with the video_id as the filename
-    result_image.save(os.path.join(output_folder, f"{video_id}.jpg"))
-
-    # Overlay gridlines
-    for x in range(zone_width, result_image_width, zone_width):
-        draw.line([(x, 0), (x, result_image_height)], fill="red", width=1)
-    for y in range(zone_height, result_image_height, zone_height):
-        draw.line([(0, y), (result_image_width, y)], fill="red", width=1)
-
-    new_filename = f"{video_id}-grid.jpg"
-    result_image.save(os.path.join(output_folder, new_filename))
-
-
-def process_file(file_path, output_folder):
-    _, file_extension = os.path.splitext(file_path)
-    if file_extension == ".xlsx":
-        df = pd.read_excel(file_path, engine="openpyxl")
-    elif file_extension == ".csv":
-        df = pd.read_csv(file_path, encoding="utf-8-sig")
-    elif file_extension == ".json":
-        with open(file_path, encoding="utf-8") as f:
-            data = json.load(f)
-        df = pd.DataFrame(data)
-    else:
-        raise ValueError(
-            "Invalid file format. Only Excel, CSV, and JSON files are supported."
-        )
-
-    df.columns = [clean_column_name(col) for col in df.columns]
-    for _, row in df.iterrows():
-        draw_text_on_image(row, output_folder)
-
-      `);
-
-          // Display the result table
-          const resultBody = document.getElementById("result-body");
-          resultBody.innerHTML = "";
-          for (const [videoId, _] of Object.entries(df)) {
-            const row = document.createElement("tr");
-            const videoIdCell = document.createElement("td");
-            const resultImageCell = document.createElement("td");
-            const resultImage = document.createElement("img");
-
-            videoIdCell.textContent = videoId;
-            resultImage.src = `output/${videoId}.jpg`;
-            resultImage.addEventListener("click", () =>
-              displayImage(resultImage.src)
-            );
-
-            resultImageCell.appendChild(resultImage);
-            row.appendChild(videoIdCell);
-            row.appendChild(resultImageCell);
-            resultBody.appendChild(row);
-          }
-        };
-        fileReader.readAsArrayBuffer(file);
-      }
-
-      function displayImage(imageSrc) {
-        const imageWindow = window.open("", "_blank");
-        imageWindow.document.write(
-          `<img src="${imageSrc}" style="max-width: 100%; max-height: 100%;">`
-        );
-      }
-
-      document
-        .getElementById("submit-btn")
-        .addEventListener("click", processFile);
-      initializePyodide();
-    </script>
-  </body>
+    // Initialize Pyodide and load the Python script
+    languagePluginLoader.then(() => {
+      loadPyodide();
+    });
+  </script>
+</head>
+<body>
+  <h1>Image Processing</h1>
+  <form>
+    <input type="file" id="fileInput">
+    <button type="button" id="processButton">Process</button>
+  </form>
+</body>
 </html>
