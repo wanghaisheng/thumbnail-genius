@@ -39,9 +39,9 @@
       let pyodide=''
       let fileExtension=''
       async function initializePyodide() {
-//         await loadPyodide({
-//           indexURL: "https://cdn.jsdelivr.net/pyodide/dev/full/",
-//         });
+         await loadPyodide({
+           indexURL: "https://cdn.jsdelivr.net/pyodide/dev/full/",
+         });
         pyodide = await loadPyodide();
         // Install required packages
         await pyodide.loadPackage(["pandas", "Pillow"]);
