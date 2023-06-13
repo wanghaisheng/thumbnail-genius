@@ -4,6 +4,14 @@ how to generate metadata of video using gpt, clickbait title, description, thumb
 
 
 
+    Custom font
+    Prints title and subtitle
+    Choice of font family (monospace, sans serif)
+    Custom font color
+    Custom title font size
+    Custom subtitle font size
+
+
 
 traditional way 
 
