@@ -3,9 +3,14 @@ how to generate metadata of video using gpt, clickbait title, description, thumb
 
 
 
+## generate video thumbnails tool aided by gpt 
 
 
-all these code created by gpt aiding 
+all these code created by gpt aiding, thanks https://chat-shared2.zhile.io/?v=2
+
+it is old school way that you got a well designed thumbnail idea and want to batch generate for your videos without opening PS like softwares
+
+
 
 1. load target thubmnail to gen a new template  json
 
