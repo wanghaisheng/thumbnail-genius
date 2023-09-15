@@ -1,331 +1,263 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Image Processing</title>
+<head>
+    <title>TiktokaStudio Thumbnail Image Generator</title>
     <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
     <script>
-      
-  const photon = import("./photon-node_bg.wasm");
-</script>
+        // Variable to store the image folder path
+        let imageFolderPath = '';
+        let selectedImageFiles = [];
 
-  </head>
-  <body>
-    <h1>Image Processing</h1>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Your code here, including adding event listeners
 
-    <form id="file-upload-form" enctype="multipart/form-data">
-      <input type="file" id="file-input" accept=".csv, .json, .xlsx" required />
-      <button type="button" id="process-button">Process</button>
-    </form>
+            // Function to parse JSON files
+            function parseJSONFile(fileInput, callback) {
+                const file = fileInput.files[0];
+                const reader = new FileReader();
 
-    <table id="result-table">
-      <tr>
+                reader.onload = function(event) {
+                    const jsonData = JSON.parse(event.target.result);
+                    callback(jsonData);
+                };
+
+                reader.readAsText(file);
+            }
+
+            // Rendering function that takes video metadata, template, and image folder path
+            async function renderImages(videoMetadata, template, imageFolderPath) {
+
+
+                // Iterate through each video metadata entry
+                
+                for (const videoInfo of videoMetadata) {
+                    let bgImage = videoInfo.bg_image; // Background image path from video metadata
+                    const canvas = document.createElement('canvas');
+                    const context = canvas.getContext('2d');
+                    const image = new Image();
+
+                    // Check if bgImage is null, None, or an empty string
+                    if (!bgImage || bgImage.trim() === '') {
+                        // If so, randomly select an image from the image folder
+                       
+                        const randomIndex = Math.floor(Math.random() * selectedImageFiles.length);
+                        bgImage = selectedImageFiles[randomIndex];
+                        console.log('mmmmm',bgImage)
+                    } else {
+                        bgImage = imageFolderPath + '/' + bgImage;
+                    }
+
+                    // Load the background image
+
+                    // Load the background image
+                    if (typeof bgImage === 'string') {
+                        // If bgImage is a string, it's a file path
+                        image.src = bgImage;
+                    } else {
+                        // If bgImage is a File object (from the selectedImageFiles array), use a FileReader
+                        const reader = new FileReader();
+                        reader.onload = function(event) {
+                            image.src = event.target.result;
+                        };
+                        reader.readAsDataURL(bgImage);
+                    }
+
+
+
+
+                    // Set canvas dimensions based on template width and height
+                    canvas.width = template.width;
+                    canvas.height = template.height;
+
+                    await new Promise((resolve) => {
+                        image.onload = function() {
+                            // Draw the background image on the canvas
+                            context.drawImage(image, 0, 0, template.width, template.height);
+
+                            // Iterate through the template texts
+                            template.texts.forEach((textInfo) => {
+                                const textType = textInfo.textType;
+                                const fontFile = textInfo.fontFile || template.fontFile;
+                                const x = textInfo.x;
+                                const y = textInfo.y;
+                                const fontSize = textInfo.fontSize;
+                                const fontColor = textInfo.fontcolor;
+
+                                // Use videoInfo data based on textType (e.g., heading, subheading, extra)
+                                const text = videoInfo[textType];
+                                console.log('type',textType,'text',text)
+                                // Set font properties
+                                context.font = `${fontSize}px ${fontFile}`;
+                                context.fillStyle = fontColor;
+
+                                // Split text into multiple lines if it exceeds the maxWidth
+                                const maxWidth = textInfo.width;
+                                const lineHeight = textInfo.height;
+
+                                // Draw multiline text
+                                drawMultilineText(context, text, { x, y }, `${fontSize}px ${fontFile}`, maxWidth, lineHeight);
+                            });
+
+                            // Create a download link for the rendered image
+                            const a = document.createElement('a');
+                            a.href = canvas.toDataURL('image/jpeg');
+                            a.download = `rendered_${videoInfo.videoname}.jpg`;
+                            a.style.display = 'none';
+                            document.body.appendChild(a);
+                            a.click();
+                            document.body.removeChild(a);
+
+                            resolve();
+                        };
+                    });
+                }
+            }
+
+            // Function to calculate text size
+            function calculateTextSize(text, font) {
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                context.font = font;
+                const metrics = context.measureText(text);
+                return {
+                    width: metrics.width,
+                    height: metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent
+                };
+            }
+
+            // Function to calculate text lines
+            function calculateTextLines(text, font, maxWidth) {
+                const words = text.split(' ');
+                const lines = [];
+                let currentLine = words[0];
+
+                for (let i = 1; i < words.length; i++) {
+                    const testLine = currentLine + ' ' + words[i];
+                    const { width } = calculateTextSize(testLine, font);
+                    if (width <= maxWidth) {
+                        currentLine = testLine;
+                    } else {
+                        lines.push(currentLine);
+                        currentLine = words[i];
+                    }
+                }
+
+                lines.push(currentLine);
+                return lines;
+            }
+
+            // Function to draw multiline text
+            function drawMultilineText(context, text, startCoord, font, maxWidth, lineHeight) {
+                const lines = calculateTextLines(text, font, maxWidth);
+                let x = startCoord.x;
+                let y = startCoord.y;
+
+                context.font = font;
+                context.textBaseline = 'top';
+
+                for (const line of lines) {
+                    context.fillText(line, x, y);
+                    y += lineHeight;
+                }
+            }
+
+            // Function to convert canvas coordinate to corner coordinate
+            function convertCanvasCoordToCorner(canvasCoord, zoneWidth, zoneHeight) {
+                const zoneNumber = canvasCoord - 1;
+                const zoneColumn = zoneNumber % 4;
+                const zoneRow = Math.floor(zoneNumber / 4);
+                const cornerX = zoneColumn - zoneWidth;
+                const cornerY = zoneRow - zoneHeight;
+                return { x: cornerX, y: cornerY };
+            }
+
+            // Function to get default font based on language
+            function getDefaultFont(language) {
+                if (language === 'en') {
+                    return 'Arial';
+                } else if (language === 'es') {
+                    return 'Arial';
+                } else if (language === 'zh') {
+                    return 'SimHei';
+                }
+            }
+
+            // Attach the processData function to the Process button click event
+            document.getElementById('process-button').addEventListener('click', function() {
+                // Parse video metadata JSON
+                parseJSONFile(document.getElementById('video-meta-input'), function(videoMetadata) {
+                    // Parse template JSON
+                    parseJSONFile(document.getElementById('template-input'), function(template) {
+                        // Get image folder path
+                        imageFolderPath = document.getElementById('image-folder-input').files[0].path;
+                        console.log('Selected image folder path:', imageFolderPath);
+
+                        // Call the rendering function
+                        renderImages(videoMetadata, template, imageFolderPath);
+                    });
+                });
+            });
+
+
+            // Listen for changes in the image file input
+            document.getElementById('image-folder-input').addEventListener('change', function() {
+                // Update the selected image files
+                selectedImageFiles = Array.from(this.files);
+                console.log('Selected image files:', selectedImageFiles);
+            });
+
+
+        });
+    </script>
+</head>
+<body>
+<h1>Image Processing</h1>
+
+
+
+
+
+<form id="file-upload-form" enctype="multipart/form-data">
+    <!-- Input for video metadata JSON -->
+    <label for="video-meta-input">Select video metadata JSON :</label>
+    <input type="file" id="video-meta-input" accept=".json" required />
+</form>
+<br>
+
+<form id="file-upload-form" enctype="multipart/form-data">
+
+
+    <!-- Input for template JSON -->
+    <label for="template-input">Select template JSON:</label>
+    <input type="file" id="template-input" accept=".json" required />
+
+
+</form>
+<br>
+
+<form id="file-upload-form" enctype="multipart/form-data">
+
+
+    <!-- Input for selecting a local image folder -->
+    <label for="image-folder-input">Select Image Folder:</label>
+    <input type="file" id="image-folder-input" webkitdirectory directory multiple />
+</form>
+<br>
+
+<button type="button" id="process-button">Generate Thumbnails</button>
+
+
+<table id="result-table">
+    <tr>
         <th>Input File</th>
         <th>Result Image 1</th>
         <th>Result Image 2</th>
-      </tr>
-      <!-- Add rows dynamically using JavaScript -->
-    </table>
+    </tr>
+    <!-- Add rows dynamically using JavaScript -->
+</table>
 
-    <div id="image-preview">
-      <!-- Image preview will be displayed here -->
-    </div>
-
-    <script>
-
-      function calculateTextSize(text, font) {
-      const canvas = document.createElement('canvas');
-      const context = canvas.getContext('2d');
-      context.font = font;
-      const metrics = context.measureText(text);
-      return {
-      width: metrics.width,
-      height: metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent
-      };
-      }
-
-      function calculateTextLines(text, font, maxWidth) {
-      const words = text.split(' ');
-      const lines = [];
-      let currentLine = words[0];
-
-      for (let i = 1; i < words.length; i++) {
-      const testLine = currentLine + ' ' + words[i];
-      const { width } = calculateTextSize(testLine, font);
-      if (width <= maxWidth) {
-      currentLine = testLine;
-      } else {
-      lines.push(currentLine);
-      currentLine = words[i];
-      }
-      }
-
-      lines.push(currentLine);
-      return lines;
-      }
-
-      function convertCanvasCoordToCorner(canvasCoord, zoneWidth, zoneHeight) {
-      const zoneNumber = canvasCoord - 1;
-      const zoneColumn = zoneNumber % 4;
-      const zoneRow = Math.floor(zoneNumber / 4);
-      const cornerX = zoneColumn -zoneWidth;
-      const cornerY = zoneRow -zoneHeight;
-      return { x: cornerX, y: cornerY };
-      }
-
-      function drawMultilineText(context, text, startCoord, font, maxWidth, lineHeight) {
-      const lines = calculateTextLines(text, font, maxWidth);
-      let x = startCoord.x;
-      let y = startCoord.y;
-
-      context.font = font;
-      context.textBaseline = 'top';
-
-      for (const line of lines) {
-      context.fillText(line, x, y);
-      y += lineHeight;
-      }
-      }
-
-      function cleanColumnName(columnName) {
-      return columnName.replace(/ /g, '\_');
-      }
-
-      function getDefaultFont(language) {
-      const platform = window.navigator.platform.toLowerCase();
-      if (platform.includes('win')) {
-      if (language === 'en') {
-      return 'Arial'; // Use Arial as default font on Windows for English text
-      } else if (language === 'es') {
-      return 'Arial'; // Use Arial as default font on Windows for Spanish text
-      } else if (language === 'zh') {
-      return 'SimHei'; // Use SimHei as default font on Windows for Chinese text
-      }
-      } else if (platform.includes('mac')) {
-      if (language === 'en') {
-      return 'Arial'; // Use Arial as default font on macOS for English text
-      } else if (language === 'es') {
-      return 'Arial'; // Use Arial as default font on macOS for Spanish text
-      } else if (language === 'zh') {
-      return 'SimHei'; // Use SimHei as default font on macOS for Chinese text
-      }
-      } else {
-      if (language === 'en' || language === 'es') {
-      return 'DejaVu Sans'; // Use DejaVu Sans as default font on Unix-based systems for English and Spanish text
-      } else if (language === 'zh') {
-      return 'WQY Microhei'; // Use WQY Microhei as default font on Unix-based systems for Chinese text
-      }
-      }
-      }
-
-async function drawTextOnImage(row, outputFolder) {
-  const resultImageSize = row.result_image_size.split('x');
-  const resultImageWidth = parseInt(resultImageSize[0]);
-  const resultImageHeight = parseInt(resultImageSize[1]);
-
-  const backgroundImagePath = row.background_image;
-  const backgroundImg = new Image();
-  backgroundImg.src = backgroundImagePath;
-
-  backgroundImg.onload = async function () {
-    const canvas = document.createElement('canvas');
-    canvas.width = resultImageWidth;
-    canvas.height = resultImageHeight;
-    const context = canvas.getContext('2d');
-
-    context.drawImage(backgroundImg, 0, 0, resultImageWidth, resultImageHeight);
-
-    const titleArea = parseInt(row.title_area_number);
-    const titleCornerCoord = convertCanvasCoordToCorner(titleArea, resultImageWidth / 4, resultImageHeight / 4);
-
-    const subtitleArea = parseInt(row.subtitle_area_number);
-    const subtitleCornerCoord = convertCanvasCoordToCorner(subtitleArea, resultImageWidth / 4, resultImageHeight / 4);
-
-    const extraTextArea = parseInt(row.extra_text_area_number);
-    const extraTextCornerCoord = convertCanvasCoordToCorner(extraTextArea, resultImageWidth / 4, resultImageHeight / 4);
-
-    const titleLanguage = row.title_language;
-    const subtitleLanguage = row.subtitle_language;
-    const extraTextLanguage = row.extra_text_language;
-
-    const titleText = row.title;
-    const subtitleText = row.subtitle;
-    const extraText = row.extra_text;
-
-    // Load Photon Wasm module
-    const photonModule = await photon;
-
-    // Convert canvas to ImageData
-    const imageData = context.getImageData(0, 0, resultImageWidth, resultImageHeight);
-
-    // Apply text on ImageData using Photon
-    photonModule.drawTextOnImage(imageData, titleText, titleCornerCoord[0], titleCornerCoord[1], titleLanguage);
-    photonModule.drawTextOnImage(imageData, subtitleText, subtitleCornerCoord[0], subtitleCornerCoord[1], subtitleLanguage);
-    photonModule.drawTextOnImage(imageData, extraText, extraTextCornerCoord[0], extraTextCornerCoord[1], extraTextLanguage);
-
-    // Update canvas with modified ImageData
-    context.putImageData(imageData, 0, 0);
-
-    const videoId = row.video_id;
-    const resultImageName = `${videoId}.jpg`;
-
-    const resultImageDataURL = canvas.toDataURL('image/jpeg');
-
-    const a = document.createElement('a');
-    a.href = resultImageDataURL;
-    a.download = resultImageName;
-    a.style.display = 'none';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  };
-}
-
-
-      function drawMultilineText(context, text, startCoord, font, maxWidth, lineHeight) {
-      const words = text.split(' ');
-      const lines = [];
-      let currentLine = words[0];
-
-      for (let i = 1; i < words.length; i++) {
-      const line = currentLine + ' ' + words[i];
-      const lineWidth = context.measureText(line).width;
-      if (lineWidth <= maxWidth) {
-      currentLine = line;
-      } else {
-      lines.push(currentLine);
-      currentLine = words[i];
-      }
-      }
-      lines.push(currentLine);
-
-      let x = startCoord[0];
-      let y = startCoord[1];
-
-      for (let i = 0; i < lines.length; i++) {
-      context.font = font;
-      context.fillText(lines[i], x, y);
-      y += lineHeight;
-      }
-      }
-
-      function convertCanvasCoordToCorner(canvasCoord, zoneWidth, zoneHeight) {
-      const zoneNumber = canvasCoord - 1;
-      const zoneColumn = zoneNumber % 4;
-      const zoneRow = Math.floor(zoneNumber / 4);
-      const cornerX = zoneColumn -zoneWidth;
-      const cornerY = zoneRow - zoneHeight;
-      return [cornerX, cornerY];
-      }
-
-      function getDefaultFont(language) {
-      if (language === 'en') {
-      return 'Arial';
-      } else if (language === 'es') {
-      return 'Arial';
-      } else if (language === 'zh') {
-      return 'SimHei';
-      }
-      }
-
-      function drawGridlines(context, width, height) {
-      const zoneWidth = width / 4;
-      const zoneHeight = height / 4;
-
-      for (let x = zoneWidth; x < width; x += zoneWidth) {
-      context.beginPath();
-      context.moveTo(x, 0);
-      context.lineTo(x, height);
-      context.strokeStyle = 'red';
-      context.lineWidth = 1;
-      context.stroke();
-      }
-
-      for (let y = zoneHeight; y < height; y += zoneHeight) {
-      context.beginPath();
-      context.moveTo(0, y);
-      context.lineTo(width, y);
-      context.strokeStyle = 'red';
-      context.lineWidth = 1;
-      context.stroke();
-      }
-      }
-
-      function cleanColumnName(columnName) {
-      return columnName.replace(' ', '\_');
-      }
-
-      function processData() {
-      const fileInput = document.getElementById('file-input');
-      const file = fileInput.files[0];
-      const fileExtension = file.name.split('.').pop().toLowerCase();
-
-      const outputFolder = 'output';
-      if (!fs.existsSync(outputFolder)) {
-      fs.mkdirSync(outputFolder);
-      }
-
-      if (fileExtension === 'xlsx') {
-      const reader = new FileReader();
-      reader.onload = function (event) {
-      const data = new Uint8Array(event.target.result);
-      const workbook = XLSX.read(data, { type: 'array' });
-      const sheetName = workbook.SheetNames[0];
-      const worksheet = workbook.Sheets[sheetName];
-      const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-
-            const headerRow = jsonData[0];
-            const rows = jsonData.slice(1);
-
-            for (const row of rows) {
-              const rowData = {};
-              for (let i = 0; i < headerRow.length; i++) {
-                const columnName = cleanColumnName(headerRow[i]);
-                rowData[columnName] = row[i];
-              }
-              drawTextOnImage(rowData, outputFolder);
-            }
-          };
-          reader.readAsArrayBuffer(file);
-
-      } else if (fileExtension === 'csv') {
-      const reader = new FileReader();
-      reader.onload = function (event) {
-      const csvData = event.target.result;
-      const jsonData = CSV.parse(csvData, { header: true });
-
-            for (const row of jsonData) {
-              const rowData = {};
-              for (const columnName of Object.keys(row)) {
-                const cleanedColumnName = cleanColumnName(columnName);
-                rowData[cleanedColumnName] = row[columnName];
-              }
-              drawTextOnImage(rowData, outputFolder);
-            }
-          };
-          reader.readAsText(file);
-
-      } else if (fileExtension === 'json') {
-      const reader = new FileReader();
-      reader.onload = function (event) {
-      const jsonData = JSON.parse(event.target.result);
-
-            for (const row of jsonData) {
-              const rowData = {};
-              for (const columnName of Object.keys(row)) {
-                const cleanedColumnName = cleanColumnName(columnName);
-                rowData[cleanedColumnName] = row[columnName];
-              }
-              drawTextOnImage(rowData, outputFolder);
-            }
-          };
-          reader.readAsText(file);
-
-      } else {
-      alert('Invalid file format. Please upload an Excel file (.xlsx), a CSV file (.csv), or a JSON file (.json).');
-      }
-      }
-
-      document.getElementById('process-button').addEventListener('click', processData);
-    </script>
-  </body>
+<div id="image-preview">
+    <!-- Image preview will be displayed here -->
+</div>
+</body>
 </html>
