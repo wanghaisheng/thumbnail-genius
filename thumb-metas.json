@@ -1,14 +1,14 @@
 {
 	"videos": ["1": {
-			"bg_image": "/Users/wenke/github/tiktoka-studio-uploader/tests/1/sp/1-001.jpg",
-			"heading": "",
-			"subheading": "",
-			"extraheading": ""
+			"bg_image": "bg1.jpg",
+			"heading": "Sample Title",
+			"subheading": "Sample Subtitle",
+			"extraheading": "Sample Extra Text"
 		},
 		"2": {
-			"bg_image": "/Users/wenke/github/tiktoka-studio-uploader/tests/1/sp/1-001.jpg",
-			"heading": "",
-			"subheading": "",
-			"extraheading": ""
+			"bg_image": "bg2.jpg",
+			"heading": "在线字体编辑器",
+			"subheading": "使用Fonteditor在线编辑、转换、预览字体文件",
+			"extraheading": "支持导入的字体格式有 ttf, woff, woff2, svg font, eot, otf等字体格式，支持ttf, woff, woff2等格式字体导出。"
 		}
 	]
