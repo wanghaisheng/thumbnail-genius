@@ -4,18 +4,10 @@ how to generate metadata of video using gpt, clickbait title, description, thumb
 
 
 
-    Custom font
-    Prints title and subtitle
-    Choice of font family (monospace, sans serif)
-    Custom font color
-    Custom title font size
-    Custom subtitle font size
 
+all these code created by gpt aiding 
 
-
-traditional way 
-
-1. load demo thubmnail to gen template  json
+1. load target thubmnail to gen a new template  json
 
 https://wanghaisheng.github.io/video-publish-metadata-gpt/template.html
 
@@ -24,18 +16,17 @@ font size
 rendering starting zone
 
 
-2. use the tem
+2. edit thumb meta json for each video 
 
-template json:
-font name
-font size
-text
-rendering starting zone
+heading text:
+subheading
+extra
+and bg image path, if there is no bg image ,it will randomly choose from bg image folder
+
+3. generate use template json,meta json, bg folder
 
 
-run code inside browser without any other package install to play 
-
-https://wanghaisheng.github.io/video-publish-metadata-gpt/
+https://wanghaisheng.github.io/video-publish-metadata-gpt/generator.html
 
 
 
