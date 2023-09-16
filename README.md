@@ -21,7 +21,7 @@ font size
 rendering starting zone
 
 
-2. use [ [](jsoncrack.)](https://jsoncrack.com/editor) edit thumb meta json for each video 
+2. use [editor](https://jsoncrack.com/editor) edit thumb meta json for each video 
 heading text:
 subheading
 extra
