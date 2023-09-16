@@ -17,7 +17,10 @@
             function parseJSONFile(fileInput, callback) {
                 const file = fileInput.files[0];
                 const reader = new FileReader();
-
+                if (!file) {
+            showGeneralHint(); // Show the general hint when no JSON file is selected
+            return;
+        }      
                 reader.onload = function(event) {
                     const jsonData = JSON.parse(event.target.result);
                     callback(jsonData);
@@ -30,7 +33,10 @@
             function parseExcelFile(fileInput, callback) {
                 const file = fileInput.files[0];
                 const reader = new FileReader();
-
+                if (!file) {
+            showGeneralHint(); // Show the general hint when no JSON file is selected
+            return;
+        }      
                 reader.onload = function(event) {
                     const data = new Uint8Array(event.target.result);
                     const workbook = XLSX.read(data, { type: 'array' });
@@ -46,7 +52,10 @@
             function parseCSVFile(fileInput, callback) {
                 const file = fileInput.files[0];
                 const reader = new FileReader();
-
+                if (!file) {
+            showGeneralHint(); // Show the general hint when no JSON file is selected
+            return;
+        }      
                 reader.onload = function(event) {
                     const csvData = event.target.result;
                     const jsonData = Papa.parse(csvData, { header: true }).data;
@@ -68,48 +77,49 @@
                     const context = canvas.getContext('2d');
                     const image = new Image();
 
-                // Check if bgImage is null, None, or an empty string
-                if (!bgImage || bgImage.trim() === '') {
-                    // If so, randomly select an image from the selectedImageFiles array
-                    if (selectedImageFiles.length > 0) {
+
+
+
+
+                    // Check if bgImage is null, None, or an empty string
+                    if (!bgImage || bgImage.trim() === '') {
+                        // If so, randomly select an image from the image folder
+                       
                         const randomIndex = Math.floor(Math.random() * selectedImageFiles.length);
-                        bgImage = selectedImageFiles[randomIndex].name; // Use the file name
-                        console.log('Randomly selected image:', bgImage);
+                        bgImage = selectedImageFiles[randomIndex];
+                        console.log('mmmmm',bgImage)
                     } else {
-                        console.log('No images in the selected folder.');
+                    // If bgImage is an absolute path, display a hint to the user
+                    const bgImageHint = document.getElementById('bgImageHint');
+                    bgImageHint.style.display = 'block'; // Show the hint
+
+
+                    // Hide the hint after 5 seconds
+                    setTimeout(function() {
+                        bgImageHint.style.display = 'none';
+                    }, 5000); // 5000 milliseconds = 5 seconds                                   
                     }
-                } else if (isAbsolutePath(bgImage)) {
-                    // If bgImage is an absolute path, display a hint to the user
-                    const bgImageHint = document.getElementById('bgImageHint');
-                    bgImageHint.style.display = 'block'; // Show the hint
-                } else {
-                    // If bgImage is an absolute path, display a hint to the user
-                    const bgImageHint = document.getElementById('bgImageHint');
-                    bgImageHint.style.display = 'block'; // Show the hint
-                }
 
-                // Function to check if a path is absolute
-                function isAbsolutePath(path) {
-                    return path.startsWith('/') || /^[A-Z]:\\|\\\\/i.test(path); // Modify this pattern if needed
-                }
+                    // Load the background image
 
-
-                // Load the background image
-                if (typeof bgImage === 'string') {
-
+                    // Load the background image
+                    if (typeof bgImage === 'string') {
                     // If bgImage is an absolute path, display a hint to the user
                     const bgImageHint = document.getElementById('bgImageHint');
                     bgImageHint.style.display = 'block'; // Show the hint
 
-                } else {
-                    // If bgImage is a File object (from the selectedImageFiles array), use a FileReader
-                    const reader = new FileReader();
-                    reader.onload = function(event) {
-                        image.src = event.target.result;
-                    };
-                    reader.readAsDataURL(bgImage);
-                }
-
+                    // Hide the hint after 5 seconds
+                    setTimeout(function() {
+                        bgImageHint.style.display = 'none';
+                    }, 5000); // 5000 milliseconds = 5 seconds                    
+                    } else {
+                        // If bgImage is a File object (from the selectedImageFiles array), use a FileReader
+                        const reader = new FileReader();
+                        reader.onload = function(event) {
+                            image.src = event.target.result;
+                        };
+                        reader.readAsDataURL(bgImage);
+                    }
 
 
 
@@ -229,6 +239,17 @@
                     return 'SimHei';
                 }
             }
+            function showGeneralHint() {
+    const generalHint = document.getElementById('generalHint');
+    generalHint.style.display = 'block'; // Show the hint
+
+
+                    // Hide the hint after 5 seconds
+                    setTimeout(function() {
+                        generalHint.style.display = 'none';
+                    }, 5000); // 5000 milliseconds = 5 seconds               
+
+}
 
             // Attach the processData function to the Process button click event
             document.getElementById('process-button').addEventListener('click', function() {
@@ -236,8 +257,13 @@
                 const videoMetaInput = document.getElementById('video-meta-input');
                 const file = videoMetaInput.files[0];
                 const fileExtension = file.name.split('.').pop().toLowerCase();
-
+                if (!file) {
+            showGeneralHint(); // Show the general hint when no JSON file is selected
+            return;
+        }      
                 if (fileExtension === 'json') {
+
+               
                     // Parse JSON file
                     parseJSONFile(videoMetaInput, function(videoMetadata) {
                         // Parse template JSON
@@ -383,6 +409,8 @@
 <!-- Add a div to display the hint -->
 <div id="bgImageHint" style="color: red; display: none;">manually set Background image feature is not yet supported.please remove 'bg_image' filed in the video meta file</div>
 
+<!-- Add a div to display the general hint -->
+<div id="generalHint" style="color: red; display: none;">Please submit video meta and template file ,background images</div>
 
 </body>
 </html>
