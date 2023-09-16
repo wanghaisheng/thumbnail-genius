@@ -57,7 +57,9 @@ rendering starting zone
 heading text:
 subheading
 extra
-and bg image path, if there is no bg image ,it will randomly choose from bg image folder
+
+
+it will randomly choose from bg image folder
 
 
 
