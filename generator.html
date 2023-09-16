@@ -3,14 +3,16 @@
 <head>
     <title>TiktokaStudio Thumbnail Image Generator</title>
     <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+
     <script>
-        // Variable to store the image folder path
-        let imageFolderPath = '';
-        let selectedImageFiles = [];
+
 
         document.addEventListener('DOMContentLoaded', function() {
             // Your code here, including adding event listeners
-
+        // Variable to store the image folder path
+        let imageFolderPath = '';
+        let selectedImageFiles = [];
             // Function to parse JSON files
             function parseJSONFile(fileInput, callback) {
                 const file = fileInput.files[0];
@@ -66,31 +68,47 @@
                     const context = canvas.getContext('2d');
                     const image = new Image();
 
-                    // Check if bgImage is null, None, or an empty string
-                    if (!bgImage || bgImage.trim() === '') {
-                        // If so, randomly select an image from the image folder
-                       
+                // Check if bgImage is null, None, or an empty string
+                if (!bgImage || bgImage.trim() === '') {
+                    // If so, randomly select an image from the selectedImageFiles array
+                    if (selectedImageFiles.length > 0) {
                         const randomIndex = Math.floor(Math.random() * selectedImageFiles.length);
-                        bgImage = selectedImageFiles[randomIndex];
-                        console.log('mmmmm',bgImage)
+                        bgImage = selectedImageFiles[randomIndex].name; // Use the file name
+                        console.log('Randomly selected image:', bgImage);
                     } else {
-                        bgImage = imageFolderPath + '/' + bgImage;
+                        console.log('No images in the selected folder.');
                     }
+                } else if (isAbsolutePath(bgImage)) {
+                    // If bgImage is an absolute path, display a hint to the user
+                    const bgImageHint = document.getElementById('bgImageHint');
+                    bgImageHint.style.display = 'block'; // Show the hint
+                } else {
+                    // If bgImage is an absolute path, display a hint to the user
+                    const bgImageHint = document.getElementById('bgImageHint');
+                    bgImageHint.style.display = 'block'; // Show the hint
+                }
 
-                    // Load the background image
+                // Function to check if a path is absolute
+                function isAbsolutePath(path) {
+                    return path.startsWith('/') || /^[A-Z]:\\|\\\\/i.test(path); // Modify this pattern if needed
+                }
 
-                    // Load the background image
-                    if (typeof bgImage === 'string') {
-                        // If bgImage is a string, it's a file path
-                        image.src = bgImage;
-                    } else {
-                        // If bgImage is a File object (from the selectedImageFiles array), use a FileReader
-                        const reader = new FileReader();
-                        reader.onload = function(event) {
-                            image.src = event.target.result;
-                        };
-                        reader.readAsDataURL(bgImage);
-                    }
+
+                // Load the background image
+                if (typeof bgImage === 'string') {
+
+                    // If bgImage is an absolute path, display a hint to the user
+                    const bgImageHint = document.getElementById('bgImageHint');
+                    bgImageHint.style.display = 'block'; // Show the hint
+
+                } else {
+                    // If bgImage is a File object (from the selectedImageFiles array), use a FileReader
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        image.src = event.target.result;
+                    };
+                    reader.readAsDataURL(bgImage);
+                }
 
 
 
@@ -127,7 +145,7 @@
                                 // Draw multiline text
                                 drawMultilineText(context, text, { x, y }, `${fontSize}px ${fontFile}`, maxWidth, lineHeight);
                             });
-
+                            console.log('start to download result image')
                             // Create a download link for the rendered image
                             const a = document.createElement('a');
                             a.href = canvas.toDataURL('image/jpeg');
@@ -225,8 +243,26 @@
                         // Parse template JSON
                         parseJSONFile(document.getElementById('template-input'), function(template) {
                             // Get image folder path
-                            imageFolderPath = document.getElementById('image-folder-input').files[0].path;
-                            console.log('Selected image folder path:', imageFolderPath);
+                            // Retrieve the image folder input element
+                            const imageFolderInput = document.getElementById('image-folder-input');
+                            console.log('imageFolderInput before render.',imageFolderInput);
+                            console.log('imageFolderInput.files.length before render.',imageFolderInput.files.length);
+
+                            // Check if any folder is selected
+                            if (imageFolderInput.files.length > 0) {
+                                // Access the first selected folder path
+                                imageFolderPath = imageFolderInput.files[0].path;
+                                console.log('imageFolderInput.files[0] before render.',imageFolderInput.files[0]);
+
+                                console.log('imageFolderInput.files[0] webkitRelativePath before render.',imageFolderInput.files[0].webkitRelativePath);
+                                
+
+                                console.log('Selected image folder path:', imageFolderPath);
+                            } else {
+                                console.log('No folder selected.');
+                            }
+
+                            console.log('imageFolderPath before render.',imageFolderPath);
 
                             // Call the rendering function
                             renderImages(videoMetadata, template, imageFolderPath);
@@ -238,8 +274,18 @@
                         // Parse template JSON
                         parseJSONFile(document.getElementById('template-input'), function(template) {
                             // Get image folder path
-                            imageFolderPath = document.getElementById('image-folder-input').files[0].path;
-                            console.log('Selected image folder path:', imageFolderPath);
+                            // Retrieve the image folder input element
+                            const imageFolderInput = document.getElementById('image-folder-input');
+
+                            // Check if any folder is selected
+                            if (imageFolderInput.files.length > 0) {
+                                // Access the first selected folder path
+                                imageFolderPath = imageFolderInput.files[0].path;
+                                console.log('Selected image folder path:', imageFolderPath);
+                            } else {
+                                console.log('No folder selected.');
+                            }
+
 
                             // Call the rendering function
                             renderImages(videoMetadata, template, imageFolderPath);
@@ -251,8 +297,21 @@
                         // Parse template JSON
                         parseJSONFile(document.getElementById('template-input'), function(template) {
                             // Get image folder path
-                            imageFolderPath = document.getElementById('image-folder-input').files[0].path;
-                            console.log('Selected image folder path:', imageFolderPath);
+                            // imageFolderPath = document.getElementById('image-folder-input').files[0].path;
+                            // console.log('Selected image folder path:', imageFolderPath);
+
+                            // Retrieve the image folder input element
+                            const imageFolderInput = document.getElementById('image-folder-input');
+
+                            // Check if any folder is selected
+                            if (imageFolderInput.files.length > 0) {
+                                // Access the first selected folder path
+                                imageFolderPath = imageFolderInput.files[0].path;
+                                console.log('Selected image folder path:', imageFolderPath);
+                            } else {
+                                console.log('No folder selected.');
+                            }
+
 
                             // Call the rendering function
                             renderImages(videoMetadata, template, imageFolderPath);
@@ -283,16 +342,16 @@
 
 <form id="file-upload-form" enctype="multipart/form-data">
     <!-- Input for video metadata JSON -->
-    <label for="video-meta-input" >Select video metadata file:JSON/excel/csv :</label>
-    <input type="file" id="video-meta-input" accept=".json" required />
-</form>
+<!-- Input for video metadata JSON, XLSX, and CSV -->
+<label for="video-meta-input">Select video metadata file (JSON, XLSX, CSV):</label>
+<input type="file" id="video-meta-input" accept=".json,.xlsx,.csv" required />
+
 <br>
 
 <p>demo video metadata file can be found https://github.com/wanghaisheng/video-publish-metadata-gpt/tree/wasm-photon</p>
 <p>json file can use editor https://jsoncrack.com/editor</p>
 <br>
 
-<form id="file-upload-form" enctype="multipart/form-data">
 
 
     <!-- Input for template JSON -->
@@ -300,35 +359,30 @@
     <input type="file" id="template-input" accept=".json" required />
 
 
-</form>
 <br>
 <p>demo template  file can be found https://github.com/wanghaisheng/video-publish-metadata-gpt/tree/wasm-photon</p>
 <p>json file can use editor https://jsoncrack.com/editor</p>
 <br>
 
-<form id="file-upload-form" enctype="multipart/form-data">
 
 
     <!-- Input for selecting a local image folder -->
     <label for="image-folder-input">Select Image Folder:</label>
-    <input type="file" id="image-folder-input" webkitdirectory directory multiple />
+    <input type="file" id="image-folder-input" directory multiple />
+    <br>
 </form>
+
+
 <br>
+
+<br>
+
 
 <button type="button" id="process-button">Generate Thumbnails</button>
 
+<!-- Add a div to display the hint -->
+<div id="bgImageHint" style="color: red; display: none;">manually set Background image feature is not yet supported.please remove 'bg_image' filed in the video meta file</div>
 
-<table id="result-table">
-    <tr>
-        <th>Input File</th>
-        <th>Result Image 1</th>
-        <th>Result Image 2</th>
-    </tr>
-    <!-- Add rows dynamically using JavaScript -->
-</table>
 
-<div id="image-preview">
-    <!-- Image preview will be displayed here -->
-</div>
 </body>
 </html>
