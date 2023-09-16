@@ -81,11 +81,13 @@ header {
     border-radius: 5px;
     font-weight: bold;
     transition: background-color 0.3s ease;
+    margin: 10px; /* Add margin for spacing */
 }
 
 .cta-button:hover {
     background-color: #e64100;
 }
+
 
 /* Features Section Styles */
 .features {
