@@ -21,14 +21,14 @@ font size
 rendering starting zone
 
 
-2. use [editor](https://jsoncrack.com/editor) edit thumb meta json for each video 
+2. use [editor](https://jsoncrack.com/editor) edit [thumb meta json demo](https://github.com/wanghaisheng/video-publish-metadata-gpt/blob/wasm-photon/thumb-metas-random-bg.json) for each video 
 heading text:
 subheading
 extra
 and bg image path, if there is no bg image ,it will randomly choose from bg image folder
 
 
-[thumb meta json demo](https://github.com/wanghaisheng/video-publish-metadata-gpt/blob/wasm-photon/thumb-metas-random-bg.json)
+
 
 
 
