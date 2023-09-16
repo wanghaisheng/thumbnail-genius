@@ -24,6 +24,36 @@
                 reader.readAsText(file);
             }
 
+            // Function to parse Excel files
+            function parseExcelFile(fileInput, callback) {
+                const file = fileInput.files[0];
+                const reader = new FileReader();
+
+                reader.onload = function(event) {
+                    const data = new Uint8Array(event.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const sheetName = workbook.SheetNames[0];
+                    const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+                    callback(jsonData);
+                };
+
+                reader.readAsArrayBuffer(file);
+            }
+
+            // Function to parse CSV files
+            function parseCSVFile(fileInput, callback) {
+                const file = fileInput.files[0];
+                const reader = new FileReader();
+
+                reader.onload = function(event) {
+                    const csvData = event.target.result;
+                    const jsonData = Papa.parse(csvData, { header: true }).data;
+                    callback(jsonData);
+                };
+
+                reader.readAsText(file);
+            }
+
             // Rendering function that takes video metadata, template, and image folder path
             async function renderImages(videoMetadata, template, imageFolderPath) {
 
@@ -101,7 +131,7 @@
                             // Create a download link for the rendered image
                             const a = document.createElement('a');
                             a.href = canvas.toDataURL('image/jpeg');
-                            a.download = `rendered_${videoInfo.videoname}.jpg`;
+                            a.download = `${videoInfo.videoname.split('.')[0]}.jpg`;
                             a.style.display = 'none';
                             document.body.appendChild(a);
                             a.click();
@@ -184,20 +214,54 @@
 
             // Attach the processData function to the Process button click event
             document.getElementById('process-button').addEventListener('click', function() {
-                // Parse video metadata JSON
-                parseJSONFile(document.getElementById('video-meta-input'), function(videoMetadata) {
-                    // Parse template JSON
-                    parseJSONFile(document.getElementById('template-input'), function(template) {
-                        // Get image folder path
-                        imageFolderPath = document.getElementById('image-folder-input').files[0].path;
-                        console.log('Selected image folder path:', imageFolderPath);
+                // Parse video metadata JSON, Excel, or CSV
+                const videoMetaInput = document.getElementById('video-meta-input');
+                const file = videoMetaInput.files[0];
+                const fileExtension = file.name.split('.').pop().toLowerCase();
 
-                        // Call the rendering function
-                        renderImages(videoMetadata, template, imageFolderPath);
+                if (fileExtension === 'json') {
+                    // Parse JSON file
+                    parseJSONFile(videoMetaInput, function(videoMetadata) {
+                        // Parse template JSON
+                        parseJSONFile(document.getElementById('template-input'), function(template) {
+                            // Get image folder path
+                            imageFolderPath = document.getElementById('image-folder-input').files[0].path;
+                            console.log('Selected image folder path:', imageFolderPath);
+
+                            // Call the rendering function
+                            renderImages(videoMetadata, template, imageFolderPath);
+                        });
                     });
-                });
-            });
+                } else if (fileExtension === 'xlsx') {
+                    // Parse Excel file
+                    parseExcelFile(videoMetaInput, function(videoMetadata) {
+                        // Parse template JSON
+                        parseJSONFile(document.getElementById('template-input'), function(template) {
+                            // Get image folder path
+                            imageFolderPath = document.getElementById('image-folder-input').files[0].path;
+                            console.log('Selected image folder path:', imageFolderPath);
 
+                            // Call the rendering function
+                            renderImages(videoMetadata, template, imageFolderPath);
+                        });
+                    });
+                } else if (fileExtension === 'csv') {
+                    // Parse CSV file
+                    parseCSVFile(videoMetaInput, function(videoMetadata) {
+                        // Parse template JSON
+                        parseJSONFile(document.getElementById('template-input'), function(template) {
+                            // Get image folder path
+                            imageFolderPath = document.getElementById('image-folder-input').files[0].path;
+                            console.log('Selected image folder path:', imageFolderPath);
+
+                            // Call the rendering function
+                            renderImages(videoMetadata, template, imageFolderPath);
+                        });
+                    });
+                } else {
+                    alert('Unsupported file format. Please select a JSON, Excel (.xlsx), or CSV (.csv) file.');
+                }
+            });
 
             // Listen for changes in the image file input
             document.getElementById('image-folder-input').addEventListener('change', function() {
