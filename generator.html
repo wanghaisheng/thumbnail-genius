@@ -12,6 +12,139 @@
             y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
         })(window, document, "clarity", "script", "iwey0nghpv");
     </script>    
+<script src="./hw-hmscore-analytics-web-6.9.9-300.umd.js"></script>
+<script>
+    (function () {
+
+    // https://developer.huawei.com/consumer/en/doc/development/HMSCore-Guides/javascript-accessing-0000001051147976
+
+    const  agConnectConfig = 
+{
+	"agcgw":{
+		"backurl":"connect-dra.hispace.hicloud.com",
+		"url":"connect-dra.dbankcloud.cn",
+		"websocketbackurl":"connect-ws-dra.hispace.dbankcloud.com",
+		"websocketurl":"connect-ws-dra.hispace.dbankcloud.cn"
+	},
+	"agcgw_all":{
+		"CN":"connect-drcn.dbankcloud.cn",
+		"CN_back":"connect-drcn.hispace.hicloud.com",
+		"DE":"connect-dre.dbankcloud.cn",
+		"DE_back":"connect-dre.hispace.hicloud.com",
+		"RU":"connect-drru.hispace.dbankcloud.ru",
+		"RU_back":"connect-drru.hispace.dbankcloud.cn",
+		"SG":"connect-dra.dbankcloud.cn",
+		"SG_back":"connect-dra.hispace.hicloud.com"
+	},
+	"websocketgw_all":{
+		"CN":"connect-ws-drcn.hispace.dbankcloud.cn",
+		"CN_back":"connect-ws-drcn.hispace.dbankcloud.com",
+		"DE":"connect-ws-dre.hispace.dbankcloud.cn",
+		"DE_back":"connect-ws-dre.hispace.dbankcloud.com",
+		"RU":"connect-ws-drru.hispace.dbankcloud.ru",
+		"RU_back":"connect-ws-drru.hispace.dbankcloud.cn",
+		"SG":"connect-ws-dra.hispace.dbankcloud.cn",
+		"SG_back":"connect-ws-dra.hispace.dbankcloud.com"
+	},
+	"client":{
+		"cp_id":"30086000699684214",
+		"product_id":"388421841221685022",
+		"client_id":"1247025396847800128",
+		"client_secret":"80536CF95D00DC58A34DFD37D5AACC445A267119C0795D22187645AD665A3ED1",
+		"project_id":"388421841221685022",
+		"app_id":"172249065902717057",
+		"api_key":"DAEDALdcZii04lsv1gOx0xNu1ZL7mnflb5c1BLB8ua2HZN0BES6BbVwOHFenbiOB7fjRVNPsMSdUkPLuG4dv6QPMF2FdVfuXyHkCuA=="
+	},
+	"oauth_client":{
+		"client_id":"109206979",
+		"client_type":7
+	},
+	"app_info":{
+		"app_id":"172249065902717057"
+	},
+	"service":{
+		"analytics":{
+			"collector_url":"datacollector-dra.dt.hicloud.com,datacollector-dra.dt.dbankcloud.cn",
+			"collector_url_ru":"datacollector-drru.dt.dbankcloud.ru,datacollector-drru.dt.hicloud.com",
+			"collector_url_sg":"datacollector-dra.dt.hicloud.com,datacollector-dra.dt.dbankcloud.cn",
+			"collector_url_de":"datacollector-dre.dt.hicloud.com,datacollector-dre.dt.dbankcloud.cn",
+			"collector_url_cn":"datacollector-drcn.dt.hicloud.com,datacollector-drcn.dt.dbankcloud.cn",
+			"resource_id":"p1",
+			"channel_id":""
+		},
+		"edukit":{
+			"edu_url":"edukit.edu.cloud.huawei.com.cn",
+			"dh_url":"edukit.edu.cloud.huawei.com.cn"
+		},
+		"search":{
+			"url":"https://search-dra.cloud.huawei.com"
+		},
+		"cloudstorage":{
+			"storage_url_sg_back":"https://agc-storage-dra.cloud.huawei.asia",
+			"storage_url_ru_back":"https://agc-storage-drru.cloud.huawei.ru",
+			"storage_url_ru":"https://agc-storage-drru.cloud.huawei.ru",
+			"storage_url_de_back":"https://agc-storage-dre.cloud.huawei.eu",
+			"storage_url_de":"https://ops-dre.agcstorage.link",
+			"storage_url":"https://agc-storage-drcn.platform.dbankcloud.cn",
+			"storage_url_sg":"https://ops-dra.agcstorage.link",
+			"storage_url_cn_back":"https://agc-storage-drcn.cloud.huawei.com.cn",
+			"storage_url_cn":"https://agc-storage-drcn.platform.dbankcloud.cn"
+		},
+		"ml":{
+			"mlservice_url":"ml-api-dra.ai.dbankcloud.com,ml-api-dra.ai.dbankcloud.cn"
+		}
+	},
+	"region":"SG",
+	"configuration_version":"3.0"
+};
+/**
+ * Initializes app configuration
+ */
+
+// 启用调试模式
+// agconnect.analytics.InitSettings.debugMode = true;
+// 调试模式下，自定义终端标识
+//agconnect.analytics.InitSettings.terminalName = "my macmini";        
+//agconnect.instance().configInstance(agConnectConfig);
+
+// 是否启用url聚类
+//https://developer.huawei.com/consumer/cn/doc/development/HMSCore-Guides/javascript-accessing-0000001051147976#section2459527366
+agconnect.analytics.UrlClusteringOptions.enabled= false;
+// 是否移除协议
+ agconnect.analytics.UrlClusteringOptions.removeProtocol= true;
+// 是否移除协议、域名和端口
+ agconnect.analytics.UrlClusteringOptions.removeOrigin= false;
+// 是否移除全部参数
+ agconnect.analytics.UrlClusteringOptions.removeAllParams= true;
+// 是否移除指定参数
+ agconnect.analytics.UrlClusteringOptions.removeParams= {
+    // 默认处理方式，移除全部参数值，保留键名。 
+     removeValuesOnly: true,
+     params: {
+        "key1": {
+            // 是否只移除参数值，保留键名，覆盖外层的配置
+            removeValuesOnly: false,
+           // search|anchor|both  search表示锚点前的参数位置，anchor表示锚点后的参数位置，both表示锚点前的参数位置和锚点后的参数位置。
+           position: 'both',
+       }
+     }
+   };
+
+// 是否移除锚点
+ agconnect.analytics.UrlClusteringOptions.removeAnchor= true;
+// URL模式，若传入的URL按照开关处理后满足任一模式，则上报该模式。URL模式可指定 {占位符名称} 格式的占位符，占位符匹配除urlSeparators外的所有字符。
+ agconnect.analytics.UrlClusteringOptions.urlPatterns= [];
+ agconnect.analytics.UrlClusteringOptions.urlSeparators= ':/.?=&#'
+
+ agconnect.instance().configInstance(agConnectConfig);
+// Initialize the Analytics Kit instance.
+let analytics = agconnect.analytics();
+
+
+
+
+    })()
+  </script>    
 </head>
 
 <script>
