@@ -58,7 +58,7 @@ header {
     padding: 120px 0;
 }
 
-.hero h2 {
+.hero h1 {
     font-size: 48px;
     font-weight: bold;
     margin-bottom: 20px;
@@ -155,6 +155,12 @@ header {
     color: #666;
 }
 
+/* How It Works Section Styles */
+.help {
+    background-color: #fff; /* Change the background color as desired */
+    padding: 60px 0;
+    text-align: center;
+}
 /* Horizontal Blocks Styles */
 .horizontal-blocks {
     display: flex;
@@ -179,9 +185,9 @@ header {
     text-align: left;
 }
 
-.join-community h2,
-.get-started h2,
-.stay-ahead h2 {
+.join-community h3,
+.get-started h3,
+.stay-ahead h3 {
     font-size: 24px;
     font-weight: bold;
     margin-bottom: 10px;
@@ -362,3 +368,20 @@ footer {
             color: red;
             display: none;
         }
+
+        #scrollToTopButton {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #0078d4;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+        
+        #scrollToTopButton:hover {
+            background-color: #0056b3;
+        }
+        
