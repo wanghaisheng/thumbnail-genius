@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+    <script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
+   
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Get the scroll-to-top button element
+            const scrollToTopButton = document.getElementById("scrollToTopButton");
+        
+            // Add a click event listener to the button
+            scrollToTopButton.addEventListener("click", function () {
+                // Scroll to the top of the page smoothly
+                window.scrollTo({
+                    top: 0,
+                    behavior: "smooth"
+                });
+            });
+
+
+
+    Paddle.Setup({ 
+    seller: 145936 // replace with your Paddle seller ID 
+  });
+
+
+  function openCheckout() {
+    Paddle.Checkout.open({
+      settings: {
+        theme: "light",
+      },
+      items: [
+        {
+          priceId: 'pri_01gs59hve0hrz6nyybj56z04eq',
+          quantity: 1
+        },
+        {
+          priceId: 'pri_01gs59p7rcxmzab2dm3gfqq00a',
+          quantity: 1
+        }
+      ]
+    });
+  }
+
+        });
+        </script>    
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subscription Plans</title>
+    <!-- Add your CSS styles here -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+
+<body>
+    <header>
+        <h1>Subscription Plans</h1>
+    </header>
+    <section class="subscription-plan">
+        <div class="plan">
+            <h2>Basic Plan</h2>
+            <p><strong>Price:</strong> $9.99/month</p>
+            <ul>
+                <li>Access to our core services</li>
+                <li>Basic customer support</li>
+                <li>Monthly updates and improvements</li>
+                <li>Cancel anytime</li>
+            </ul>
+            <a href="#" class="subscribe-button">Subscribe to Basic Plan</a>
+        </div>
+        <div class="plan">
+            <h2>Pro Plan</h2>
+            <p><strong>Price:</strong> $19.99/month</p>
+            <ul>
+                <li>All Basic Plan features</li>
+                <li>Priority customer support</li>
+                <li>Advanced analytics and reporting</li>
+                <li>Quarterly feature enhancements</li>
+                <li>Integration with third-party tools</li>
+            </ul>
+            <a href="#" class="subscribe-button">Subscribe to Pro Plan</a>
+        </div>
+        <div class="plan">
+            <h2>Premium Plan</h2>
+            <p><strong>Price:</strong> $49.99/month</p>
+            <ul>
+                <li>All Pro Plan features</li>
+                <li>24/7 premium customer support</li>
+                <li>Customizable solutions</li>
+                <li>Exclusive access to beta features</li>
+                <li>Personal account manager</li>
+            </ul>
+            <a href="#" class="subscribe-button">Subscribe to Premium Plan</a>
+        </div>
+    </section>
+    <section class="faq">
+        <h2>Frequently Asked Questions</h2>
+        <ul>
+            <li><strong>Q: Can I change my subscription plan?</strong><br>A: Yes, you can upgrade, downgrade, or cancel your subscription plan at any time. Changes will take effect at the end of your current billing cycle.</li>
+            <li><strong>Q: What payment methods do you accept?</strong><br>A: We accept major credit cards and PayPal through our Paddle subscription service for secure and hassle-free payments.</li>
+            <li><strong>Q: Is there a free trial available?</strong><br>A: Unfortunately, we do not offer a free trial at this time. However, you can start with our Basic Plan and upgrade as needed.</li>
+            <li><strong>Q: How do I contact customer support?</strong><br>A: Customer support is available for Pro and Premium Plan subscribers. Simply log in to your account, and you'll find contact details for our support team.</li>
+            <li><strong>Q: Can I get a refund?</strong><br>A: We offer a 30-day money-back guarantee. If you are not satisfied with our service within the first 30 days of your subscription, contact us for a full refund.</li>
+        </ul>
+    </section>
+    <section class="cta">
+        <h2>Ready to Get Started?</h2>
+        <p>Select the subscription plan that aligns with your needs and unlock a world of possibilities with our premium services. Subscribe now and experience the difference!</p>
+        <a href="#" class="subscribe-button">Subscribe to Basic Plan</a>
+        <a href="#" class="subscribe-button">Subscribe to Pro Plan</a>
+        <a href="#" class="subscribe-button">Subscribe to Premium Plan</a>
+    </section>
+    <footer>
+        <p>If you have any additional questions or need assistance with your subscription, please <a href="#">contact us</a> for prompt support.</p>
+    </footer>
+</body>
+</html>
