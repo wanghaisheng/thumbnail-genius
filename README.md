@@ -121,6 +121,8 @@ fonts resousces
 https://www.cufonfonts.com/
 
 
+https://vercel.com/docs/functions/edge-functions/og-image-generation
+
 https://metatags.io/
 
 
