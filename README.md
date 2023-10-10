@@ -117,6 +117,10 @@ convert the following code to javascript running in the browser instead of serve
 
 ref
 
+fonts resousces
+https://www.cufonfonts.com/
+
+
 https://metatags.io/
 
 
