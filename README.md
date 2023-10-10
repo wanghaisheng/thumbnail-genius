@@ -125,4 +125,5 @@ https://vercel.com/docs/functions/edge-functions/og-image-generation
 
 https://metatags.io/
 
+https://www.1001freefonts.com/typewriter.font
 
