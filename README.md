@@ -8,20 +8,29 @@ Our AI-assisted thumbnail generator simplifies the process of creating eye-catch
 
 ### How It Works
 
-1. **Create a New Thumbnail Template**
+1. **Create a New Thumbnail Template from image**
    - [Load your target thumbnail](https://wanghaisheng.github.io/video-publish-metadata-gpt/template.html)
    - Customize font, font size, and starting rendering zone to match your vision.
    - Define your own thumbnail components instead of prefined 'heading,subheading,extra' 
-
-2. **Edit Thumbnail Metadata**
+2.load existing template and update it
+  load template that define background,font, text bouding box coordinations,
+  edit metadata to preview the result,
+  save the metadata as new template
+3. **Edit Thumbnail Metadata**
    - Use our user-friendly [editor](https://jsoncrack.com/editor) to modify the [thumbnail metadata JSON template](https://github.com/wanghaisheng/video-publish-metadata-gpt/blob/wasm-photon/thumb-metas-random-bg.json) for each video.
    - Define:
      - Heading Text
      - Subheading
      - Extra Information
      - json excel csv supported
-3. **Generate Thumbnails**
-   - Combine your template JSON, metadata JSON, and background images.
+4. ai populate metadata from url
+   input url to get url title,url features
+   load predefined template,
+   preview the image,then test process is done.
+   generate image if there is more than one url provided
+   
+5. **Generate Thumbnails**
+   - Combine your template JSON, prepared metadata JSON manually, and background images.
    - Generate stunning thumbnails for your videos.
    - Save time and enhance your video content effortlessly.
 
